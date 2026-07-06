@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import Environment from './Environment.js';
 
 export default class SceneManager {
@@ -30,7 +31,7 @@ export default class SceneManager {
     }
 
     createOcean() {
-        const geo = new THREE.PlaneGeometry(500, 500, 64, 64);
+        const geo = new THREE.PlaneGeometry(2000, 2000, 128, 128);
 
         this.oceanMaterial = new THREE.ShaderMaterial({
             uniforms: {
@@ -40,22 +41,32 @@ export default class SceneManager {
             vertexShader: `
                 uniform float uTime;
                 varying vec2 vUv;
+                varying vec3 vWorldPosition;
                 void main() {
                     vUv = uv;
                     vec3 pos = position;
-                    // Gentle ocean swells
-                    pos.z += sin(pos.x * 0.1 + uTime * 0.5) * 1.5 + cos(pos.y * 0.1 + uTime * 0.5) * 1.5;
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+                    // Gentle ocean swells, with larger scale for 2000 size
+                    pos.z += sin(pos.x * 0.05 + uTime * 0.5) * 2.0 + cos(pos.y * 0.05 + uTime * 0.5) * 2.0;
+
+                    vec4 worldPosition = modelMatrix * vec4(pos, 1.0);
+                    vWorldPosition = worldPosition.xyz;
+                    gl_Position = projectionMatrix * viewMatrix * worldPosition;
                 }
             `,
             fragmentShader: `
                 uniform vec3 uColor;
+                uniform float uTime;
                 varying vec2 vUv;
+                varying vec3 vWorldPosition;
                 void main() {
-                    // Slight reflection gradient
-                    float mixVal = smoothstep(0.0, 1.0, sin(vUv.y * 50.0) * 0.5 + 0.5);
-                    vec3 finalColor = mix(uColor, vec3(0.1, 0.2, 0.3), mixVal * 0.3);
-                    gl_FragColor = vec4(finalColor, 0.9);
+                    // Slight reflection gradient and dynamic highlights
+                    float mixVal = smoothstep(0.0, 1.0, sin(vUv.y * 100.0 + uTime * 0.5) * 0.5 + 0.5);
+
+                    // Add subtle wave highlights based on noise
+                    float waveHighlight = max(0.0, sin(vWorldPosition.x * 0.1 + uTime) * cos(vWorldPosition.z * 0.1 - uTime)) * 0.2;
+
+                    vec3 finalColor = mix(uColor, vec3(0.1, 0.25, 0.4), mixVal * 0.3 + waveHighlight);
+                    gl_FragColor = vec4(finalColor, 0.95);
                 }
             `,
             transparent: true
@@ -70,8 +81,8 @@ export default class SceneManager {
     createMountains() {
         // North Shore Mountains
         const geo = new THREE.BufferGeometry();
-        const width = 200, depth = 100;
-        const widthSegments = 20, depthSegments = 10;
+        const width = 1000, depth = 500;
+        const widthSegments = 100, depthSegments = 50;
 
         const planeGeo = new THREE.PlaneGeometry(width, depth, widthSegments, depthSegments);
         planeGeo.rotateX(-Math.PI / 2);
@@ -80,9 +91,22 @@ export default class SceneManager {
         for(let i=0; i<pos.length; i+=3) {
             const x = pos[i];
             const z = pos[i+2];
-            // Procedural mountain height
-            const d = Math.sqrt(x*x + z*z);
-            pos[i+1] = Math.max(0, 30 - d*0.2 + Math.random() * 5);
+
+            // Procedural mountain height using overlapping sine waves for fractal-like appearance
+            let y = 0;
+            y += Math.sin(x * 0.02) * Math.cos(z * 0.02) * 50;
+            y += Math.sin(x * 0.05 + 1) * Math.cos(z * 0.05 + 2) * 20;
+            y += Math.sin(x * 0.1) * Math.cos(z * 0.1) * 5;
+
+            // Only raise them if they are above a threshold, creating peaks
+            y = Math.max(0, y - 10);
+
+            // Make higher peaks more jagged
+            if (y > 0) {
+                y += Math.random() * 2; // rough noise
+            }
+
+            pos[i+1] = y;
         }
 
         planeGeo.computeVertexNormals();
@@ -94,14 +118,15 @@ export default class SceneManager {
         });
 
         const mountains = new THREE.Mesh(planeGeo, mat);
-        mountains.position.set(0, -2, -100);
+        // Position them north (negative Z) of the city
+        mountains.position.set(0, -2, -200);
         this.scene.add(mountains);
     }
 
-    createCity() {
+    async createCity() {
         // Downtown Vancouver Peninsula
         const group = new THREE.Group();
-        group.position.set(20, 0, 20);
+        // group.position.set(20, 0, 20); // removing translation since data is absolute
 
         const bldgMat = new THREE.MeshStandardMaterial({
             color: 0x334155, // Slate 700
@@ -109,48 +134,103 @@ export default class SceneManager {
             metalness: 0.8
         });
 
-        // Generate grid of skyscrapers
-        for(let x=-20; x<20; x+=4) {
-            for(let z=-20; z<20; z+=4) {
-                if(Math.random() > 0.3) {
-                    const h = Math.random() * 15 + 5;
-                    const bldg = new THREE.Mesh(new THREE.BoxGeometry(2.5, h, 2.5), bldgMat);
-                    bldg.position.set(x, h/2 - 2, z);
-                    bldg.castShadow = true;
-                    bldg.receiveShadow = true;
-                    group.add(bldg);
-                }
-            }
-        }
         this.scene.add(group);
+
+        try {
+            const res = await fetch('./buildings.json');
+            const buildings = await res.json();
+
+            const geometries = [];
+
+            for (const b of buildings) {
+                if (b.c.length < 3) continue;
+                const shape = new THREE.Shape();
+                shape.moveTo(b.c[0][0], b.c[0][1]);
+                for (let i = 1; i < b.c.length; i++) {
+                    shape.lineTo(b.c[i][0], b.c[i][1]);
+                }
+                shape.lineTo(b.c[0][0], b.c[0][1]);
+
+                const extrudeSettings = {
+                    depth: b.h,
+                    bevelEnabled: false
+                };
+
+                const geo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+                // Extrude goes along Z by default, we need it to go up along Y
+                geo.rotateX(-Math.PI / 2);
+
+                geometries.push(geo);
+            }
+
+            if (geometries.length > 0) {
+                const mergedGeometry = mergeGeometries(geometries);
+                const mergedMesh = new THREE.Mesh(mergedGeometry, bldgMat);
+                mergedMesh.castShadow = true;
+                mergedMesh.receiveShadow = true;
+                group.add(mergedMesh);
+            }
+        } catch (e) {
+            console.error('Failed to load buildings.json', e);
+        }
     }
 
     createStanleyPark() {
         const group = new THREE.Group();
         group.position.set(-30, 0, 10);
 
-        // Park base
+        // Custom shape for the peninsula
+        const shape = new THREE.Shape();
+        shape.moveTo(0, 20);
+        shape.lineTo(15, 10);
+        shape.lineTo(20, -10);
+        shape.lineTo(10, -25);
+        shape.lineTo(-10, -30);
+        shape.lineTo(-25, -15);
+        shape.lineTo(-20, 5);
+        shape.lineTo(0, 20);
+
+        const extrudeSettings = { depth: 1, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 1, bevelThickness: 1 };
+        const parkGeo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+        parkGeo.rotateX(-Math.PI / 2); // Lay flat
+        parkGeo.translate(0, -1.5, 0); // Position correctly
+
         const base = new THREE.Mesh(
-            new THREE.CylinderGeometry(20, 20, 1, 32),
+            parkGeo,
             new THREE.MeshStandardMaterial({ color: 0x064e3b, roughness: 1 }) // Emerald 900
         );
-        base.position.y = -1.5;
         base.receiveShadow = true;
         group.add(base);
 
-        // Abstract Trees (Instanced)
-        const treeGeo = new THREE.ConeGeometry(1, 4, 4);
+        // Better Trees using a combination of cylinder (trunk) and cone (leaves) as a single geometry
+        const trunk = new THREE.CylinderGeometry(0.2, 0.4, 1.5, 5);
+        trunk.translate(0, 0.75, 0);
+        const leaves1 = new THREE.ConeGeometry(1.5, 3, 5);
+        leaves1.translate(0, 2.5, 0);
+        const leaves2 = new THREE.ConeGeometry(1.2, 2.5, 5);
+        leaves2.translate(0, 4, 0);
+
+        const treeGeoms = [trunk, leaves1, leaves2];
+        const treeGeo = mergeGeometries(treeGeoms);
+
         const treeMat = new THREE.MeshStandardMaterial({ color: 0x022c22, flatShading: true }); // Emerald 950
 
-        const treeMesh = new THREE.InstancedMesh(treeGeo, treeMat, 200);
+        const treeCount = 500;
+        const treeMesh = new THREE.InstancedMesh(treeGeo, treeMat, treeCount);
         const dummy = new THREE.Object3D();
 
-        for(let i=0; i<200; i++) {
+        for(let i=0; i<treeCount; i++) {
+            // Distribute trees inside a rough radius
             const angle = Math.random() * Math.PI * 2;
-            const r = Math.random() * 18;
-            dummy.position.set(Math.cos(angle)*r, 1, Math.sin(angle)*r);
-            const scale = Math.random() * 0.5 + 0.5;
+            const r = Math.random() * 20;
+            const x = Math.cos(angle)*r;
+            const z = Math.sin(angle)*r;
+
+            // Only place if it's somewhat in the middle bounds (simple rough check instead of point-in-polygon for speed)
+            dummy.position.set(x, 1, z);
+            const scale = Math.random() * 0.4 + 0.6; // random sizing
             dummy.scale.set(scale, scale, scale);
+            dummy.rotation.y = Math.random() * Math.PI;
             dummy.updateMatrix();
             treeMesh.setMatrixAt(i, dummy.matrix);
         }
@@ -164,8 +244,19 @@ export default class SceneManager {
         const markerGeo = new THREE.SphereGeometry(1.5, 16, 16);
         const markerMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.8 }); // Ocean Blue
 
-        const addMarker = (id, name, x, y, z, lat, lng) => {
+        const centerLat = 49.2827;
+        const centerLon = -123.1207;
+        const latToMeters = 111132;
+        const lonToMeters = 111132 * Math.cos(centerLat * Math.PI / 180);
+        const scale = 0.05;
+
+        const addMarker = (id, name, lat, lng) => {
             const mesh = new THREE.Mesh(markerGeo, markerMat.clone());
+
+            const x = (lng - centerLon) * lonToMeters * scale;
+            const z = -(lat - centerLat) * latToMeters * scale;
+            const y = 8; // Float slightly above buildings
+
             mesh.position.set(x, y, z);
 
             // Add glow ring
@@ -180,11 +271,11 @@ export default class SceneManager {
             this.markers.push(mesh);
         };
 
-        // Coordinates approximate
-        addMarker('stanley_park', 'Stanley Park', -30, 5, 10, 49.3017, -123.1417);
-        addMarker('gastown', 'Gastown Steam Clock', 15, 8, 5, 49.2844, -123.1089);
-        addMarker('granville', 'Granville Island', 25, 5, 30, 49.2712, -123.1340);
-        addMarker('science_world', 'Science World', 35, 5, 15, 49.2734, -123.1038);
+        // Real coordinates
+        addMarker('stanley_park', 'Stanley Park', 49.3017, -123.1417);
+        addMarker('gastown', 'Gastown Steam Clock', 49.2844, -123.1089);
+        addMarker('granville', 'Granville Island', 49.2712, -123.1340);
+        addMarker('science_world', 'Science World', 49.2734, -123.1038);
     }
 
     onResize() {

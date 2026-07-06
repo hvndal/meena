@@ -7,10 +7,11 @@ export default class Environment {
 
         // Base Vancouver Fog (cool grey/blue)
         this.baseFogColor = new THREE.Color(0x0f172a); // Slate 900
-        this.scene.fog = new THREE.FogExp2(this.baseFogColor, 0.02);
+        this.scene.fog = new THREE.FogExp2(this.baseFogColor, 0.008);
 
         this.createLighting();
         this.createRain();
+        this.createClouds();
 
         this.isRaining = false;
         this.isNight = false;
@@ -62,6 +63,48 @@ export default class Environment {
         // Don't add to scene until it's actually raining
     }
 
+    createClouds() {
+        const particleCount = 200;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const sizes = new Float32Array(particleCount);
+
+        for (let i = 0; i < particleCount; i++) {
+            positions[i*3] = (Math.random() - 0.5) * 500;
+            positions[i*3+1] = 80 + Math.random() * 40; // High in sky
+            positions[i*3+2] = (Math.random() - 0.5) * 500;
+            sizes[i] = Math.random() * 50 + 20;
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+        // Note: Using soft point sprite for clouds
+        const canvas = document.createElement('canvas');
+        canvas.width = 32;
+        canvas.height = 32;
+        const context = canvas.getContext('2d');
+        const gradient = context.createRadialGradient(16, 16, 0, 16, 16, 16);
+        gradient.addColorStop(0, 'rgba(255,255,255,1)');
+        gradient.addColorStop(1, 'rgba(255,255,255,0)');
+        context.fillStyle = gradient;
+        context.fillRect(0, 0, 32, 32);
+
+        const cloudTexture = new THREE.CanvasTexture(canvas);
+
+        const material = new THREE.PointsMaterial({
+            color: 0x94a3b8, // Slate 400
+            size: 40,
+            map: cloudTexture,
+            transparent: true,
+            opacity: 0.2,
+            depthWrite: false
+        });
+
+        this.clouds = new THREE.Points(geometry, material);
+        this.scene.add(this.clouds);
+    }
+
     applyWeather(weatherData) {
         if(!weatherData) return;
 
@@ -101,6 +144,17 @@ export default class Environment {
     }
 
     update(delta) {
+        if (this.clouds) {
+            const positions = this.clouds.geometry.attributes.position.array;
+            for(let i=0; i<positions.length/3; i++) {
+                positions[i*3] += 1 * delta; // move x
+                if (positions[i*3] > 250) {
+                    positions[i*3] = -250; // wrap around
+                }
+            }
+            this.clouds.geometry.attributes.position.needsUpdate = true;
+        }
+
         if (this.isRaining && this.rain) {
             const positions = this.rain.geometry.attributes.position.array;
             for(let i=0; i<positions.length/3; i++) {
