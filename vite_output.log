@@ -2,8 +2,9 @@
 > discover-chandigarh@1.0.0 dev
 > vite
 
+9:03:10 PM [vite] (client) Re-optimizing dependencies because lockfile has changed
 
-  VITE v8.1.3  ready in 285 ms
+  VITE v8.1.3  ready in 384 ms
 
   ➜  Local:   http://localhost:3000/
   ➜  Network: use --host to expose

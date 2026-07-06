@@ -3,121 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Discover Chandigarh | The City Beautiful</title>
+    <title>Vancouver | Interactive Explorer</title>
     <link rel="stylesheet" href="./src/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Audio -->
-    <audio id="bg-music" loop preload="auto">
-        <!-- Public domain / CC0 ambient music -->
-        <source src="https://cdn.pixabay.com/download/audio/2022/10/25/audio_2dbb9ab3c0.mp3?filename=tranquil-meditation-122971.mp3" type="audio/mpeg">
-    </audio>
-
     <div id="loader">
         <div class="loader-content">
-            <div class="loader-text">Loading Experience...</div>
+            <div class="loader-text">Loading Vancouver...</div>
             <div class="loader-bar"><div class="loader-progress"></div></div>
         </div>
     </div>
 
-    <div class="custom-cursor"></div>
-    <div class="custom-cursor-follower"></div>
-
-    <button id="audio-toggle" class="audio-control">🔇</button>
-
     <div id="canvas-container"></div>
+    <div id="tooltip">Landmark Name</div>
 
-    <nav class="floating-nav">
-        <div class="logo">CHANDIGARH</div>
-        <div class="nav-links">
-            <a href="#lake" class="nav-link">Sukhna</a>
-            <a href="#rock-garden" class="nav-link">Nek Chand</a>
-            <a href="#capitol" class="nav-link">Corbusier</a>
-            <a href="#sector-17" class="nav-link">Sector 17</a>
-            <a href="#rose-garden" class="nav-link">Zakir Hussain</a>
-            <a href="#food" class="nav-link">Heritage</a>
+    <div class="ui-layer">
+        <header>
+            <div class="logo">YVR</div>
+            <div class="controls">
+                <button class="control-btn" id="btn-reset-cam">Reset View</button>
+            </div>
+        </header>
+
+        <section class="intro-section">
+            <div class="intro-text">
+                <h1 class="cinematic-title">VANCOUVER</h1>
+                <p class="subtitle">British Columbia, Canada</p>
+                <p class="intro-desc">Explore the cinematic beauty of the Pacific Northwest. Click on glowing landmarks to discover history, live data, and street-level imagery.</p>
+            </div>
+        </section>
+
+        <div class="weather-widget" id="weather-widget">
+            <div class="weather-icon">☁️</div>
+            <div class="weather-info">
+                <span class="weather-temp">--°C</span>
+                <span class="weather-desc">Fetching...</span>
+            </div>
         </div>
-    </nav>
-    <div class="scroll-progress-container"><div class="scroll-progress-bar"></div></div>
+    </div>
 
-    <div class="scroll-prompt">Scroll to Discover</div>
+    <!-- Side Panel for Landmark Info -->
+    <div id="info-panel">
+        <button class="close-panel" id="close-panel">×</button>
+        <h2 class="landmark-title" id="panel-title">Landmark</h2>
 
-    <main id="scroll-content">
-        <!-- Opening -->
-        <section id="opening" class="scene-section">
-            <div class="glass-card title-card">
-                <h1 class="cinematic-title">CHANDIGARH</h1>
-                <p class="subtitle">A Modernist Utopia</p>
-                <p style="margin-top: 20px; color: var(--text-secondary); max-width: 600px; margin-inline: auto;">Conceived by Jawaharlal Nehru as a symbol of the newly independent India's forward-looking spirit, planned by Swiss-French architect Le Corbusier.</p>
+        <div class="mapillary-container" id="mapillary-view">
+            <div class="no-imagery">Loading imagery...</div>
+        </div>
+
+        <div class="landmark-desc" id="panel-desc">
+            <p>Select a landmark to view Wikipedia history and Mapillary street views.</p>
+        </div>
+    </div>
+
+    <!-- Scroll down for Videos -->
+    <section class="video-section">
+        <div style="max-width: 1400px; margin: 0 auto 40px auto; padding-left: 20px; border-left: 4px solid var(--accent);">
+            <h2 style="font-size: 2.5rem; margin-bottom: 10px;">Visual Archives</h2>
+            <p style="color: var(--text-secondary);">Documentaries, guides, and live streams of the city.</p>
+        </div>
+
+        <div class="video-grid">
+            <div class="video-card">
+                <h3>Vancouver Travel Guide</h3>
+                <div class="video-wrapper">
+                    <iframe loading="lazy" src="https://www.youtube.com/embed/a4d5CbK0b3A?si=8q7pjDQoRP73Qk9y" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
             </div>
-        </section>
 
-        <!-- Scene 1: Lake -->
-        <section id="lake" class="scene-section">
-            <div class="glass-card left">
-                <h2>Sukhna Lake</h2>
-                <p>Created in 1958 by damming the Sukhna Choe, a seasonal stream coming down from the Shivalik Hills.</p>
-                <p>Le Corbusier and Chief Engineer P L Verma designed it to be a sanctuary of peace. Motorized boats are strictly prohibited to maintain the tranquility and protect the migratory Siberian ducks, storks, and cranes that visit during winter.</p>
+            <div class="video-card">
+                <h3>History of Vancouver</h3>
+                <div class="video-wrapper">
+                    <iframe loading="lazy" src="https://www.youtube.com/embed/QqNMp3GHKyw?si=rmwJYvwZ4LDEL8IV" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
             </div>
-        </section>
 
-        <!-- Scene 2: Rock Garden -->
-        <section id="rock-garden" class="scene-section">
-            <div class="glass-card right">
-                <h2>Nek Chand's Rock Garden</h2>
-                <p>A testament to obsessive creation and isolationism. In 1957, Nek Chand, a government roads inspector, secretly began clearing a patch of jungle to create a miniature kingdom.</p>
-                <p>He built it entirely from industrial waste and discarded items—broken bangles, ceramic pots, electrical fittings. Discovered by authorities in 1975, it was almost demolished but saved by public outcry, becoming one of India's most profound outsider art installations.</p>
+            <div class="video-card">
+                <h3>Live Stream (24/7)</h3>
+                <div class="video-wrapper">
+                    <iframe loading="lazy" src="https://www.youtube.com/embed/rxyNjFKwzJA?si=zyOBR-XjIJZ6_KJ7" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
             </div>
-        </section>
-
-        <!-- Scene 3: Capitol -->
-        <section id="capitol" class="scene-section">
-            <div class="glass-card left">
-                <h2>The Capitol Complex</h2>
-                <p>A UNESCO World Heritage Site comprising three architectural masterpieces by Le Corbusier: the Secretariat, the High Court, and the Legislative Assembly.</p>
-                <p>Built using Béton brut (raw concrete), the monumental structures represent the sheer power of the state. It also houses the 'Open Hand Monument', Corbusier's recurring motif, symbolizing "the hand to give and the hand to receive; peace and prosperity, and the unity of mankind."</p>
-            </div>
-        </section>
-
-        <!-- Scene 4: Sector 17 -->
-        <section id="sector-17" class="scene-section">
-            <div class="glass-card right">
-                <h2>Sector 17</h2>
-                <p>The pedestrianized commercial and civic heart of the city. Designed to be the central hub in the city's anatomical layout (representing the 'heart').</p>
-                <p>Known for its concrete facades and extensive open plazas, it was designed to prioritize pedestrians over vehicles, a radical concept for Indian urban planning in the 1950s. The neon signs contrasting with raw concrete create a unique aesthetic at dusk.</p>
-            </div>
-        </section>
-
-        <!-- Scene 5: Rose Garden -->
-        <section id="rose-garden" class="scene-section">
-            <div class="glass-card left">
-                <h2>Zakir Hussain Rose Garden</h2>
-                <p>Named after India's former President, created in 1967 under the guidance of Dr. M.S. Randhawa.</p>
-                <p>Spread over 30 acres, it is Asia's largest Rose Garden, containing over 50,000 rose-bushes of 1600 different species. The garden aligns with the city's philosophy of incorporating vast, meticulously planned green belts (the 'lungs' of the city) between sectors.</p>
-            </div>
-        </section>
-
-        <!-- Scene 6: Food / Heritage -->
-        <section id="food" class="scene-section">
-            <div class="glass-card center">
-                <h2>Culinary Melting Pot</h2>
-                <p>Chandigarh's food culture reflects its history as a planned city populated by migrants from across partitioned Punjab.</p>
-                <p>From the iconic Indian Coffee House in Sector 17—a historic intellectual hub retaining its mid-century charm—to the rich, buttery dhabas, the city's cuisine is a warm blend of heritage, nostalgia, and robust flavors.</p>
-            </div>
-        </section>
-
-        <!-- Ending -->
-        <section id="ending" class="scene-section ending-section">
-            <div class="ending-content">
-                <h2 class="cinematic-title small">Experience The Master Plan</h2>
-                <p style="margin-bottom: 30px; color: var(--text-secondary);">A city designed for human scale, light, and air.</p>
-                <button class="magnetic-button cta-button">
-                    <span class="btn-text">Plan Your Journey</span>
-                </button>
-            </div>
-        </section>
-    </main>
+        </div>
+    </section>
 
     <script type="module" src="./src/main.js"></script>
 </body>
