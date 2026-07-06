@@ -146,10 +146,17 @@ class App {
                     const date = new Date(mapData.date).toLocaleDateString();
                     mapContainer.innerHTML = `
                         <img src="${mapData.url}" alt="Street view of ${data.name}">
-                        <div class="mapillary-meta">Captured: ${date}</div>
+                        <div class="mapillary-meta">Captured: ${date} &bull; Distance: ${mapData.distance}m</div>
                     `;
                 } else {
-                    mapContainer.innerHTML = '<div class="no-imagery">No street imagery available</div>';
+                    // Fallbacks
+                    const fallbackImageUrl = wikiData && wikiData.thumbnail ? wikiData.thumbnail : 'https://images.unsplash.com/photo-1559511260-66a654ae982a?q=80&w=1024&auto=format&fit=crop';
+                    const fallbackSource = wikiData && wikiData.thumbnail ? 'Official Landmark Photograph' : 'Aerial/Skyline Photography';
+
+                    mapContainer.innerHTML = `
+                        <img src="${fallbackImageUrl}" alt="${data.name}">
+                        <div class="mapillary-meta">${fallbackSource}</div>
+                    `;
                 }
             }
         });
