@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Discover Chandigarh | India's City Beautiful</title>
+    <link rel="stylesheet" href="./src/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loader">
+        <div class="loader-content">
+            <div class="loader-text">Loading Experience...</div>
+            <div class="loader-bar"><div class="loader-progress"></div></div>
+        </div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="custom-cursor"></div>
+    <div class="custom-cursor-follower"></div>
+
+    <!-- WebGL Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- UI Overlay -->
+    <nav class="floating-nav">
+        <div class="logo">DC</div>
+        <div class="nav-links">
+            <a href="#lake" class="nav-link">Lake</a>
+            <a href="#rock-garden" class="nav-link">Rock Garden</a>
+            <a href="#capitol" class="nav-link">Capitol</a>
+            <a href="#sector-17" class="nav-link">Sector 17</a>
+            <a href="#rose-garden" class="nav-link">Rose Garden</a>
+            <a href="#food" class="nav-link">Cuisine</a>
+        </div>
+    </nav>
+    <div class="scroll-progress-container"><div class="scroll-progress-bar"></div></div>
+
+    <div class="scroll-prompt">Scroll to Discover</div>
+
+    <!-- Scroll Content (Overlaying WebGL) -->
+    <main id="scroll-content">
+        <!-- Opening -->
+        <section id="opening" class="scene-section">
+            <div class="glass-card title-card">
+                <h1 class="cinematic-title">DISCOVER<br>CHANDIGARH</h1>
+                <p class="subtitle">India's City Beautiful</p>
+            </div>
+        </section>
+
+        <!-- Scene 1: Lake -->
+        <section id="lake" class="scene-section">
+            <div class="glass-card left">
+                <h2>Sukhna Lake</h2>
+                <p>Tranquil waters mirroring the Shivalik foothills. A sanctuary for migratory birds and weary souls.</p>
+            </div>
+        </section>
+
+        <!-- Scene 2: Rock Garden -->
+        <section id="rock-garden" class="scene-section">
+            <div class="glass-card right">
+                <h2>The Rock Garden</h2>
+                <p>A masterpiece from the discarded. Nek Chand's labyrinth of ceramic sculptures and cascading waterfalls.</p>
+            </div>
+        </section>
+
+        <!-- Scene 3: Capitol -->
+        <section id="capitol" class="scene-section">
+            <div class="glass-card left">
+                <h2>Capitol Complex</h2>
+                <p>Le Corbusier's concrete poetry. Monumental architecture bathed in the golden hour.</p>
+            </div>
+        </section>
+
+        <!-- Scene 4: Sector 17 -->
+        <section id="sector-17" class="scene-section">
+            <div class="glass-card right">
+                <h2>Sector 17</h2>
+                <p>The heart of the city under neon lights. Where commerce meets culture in the pouring rain.</p>
+            </div>
+        </section>
+
+        <!-- Scene 5: Rose Garden -->
+        <section id="rose-garden" class="scene-section">
+            <div class="glass-card left">
+                <h2>Zakir Hussain Rose Garden</h2>
+                <p>Thousands of blooms swaying in the gentle breeze. A fragrant escape into nature's vibrant palette.</p>
+            </div>
+        </section>
+
+        <!-- Scene 6: Food -->
+        <section id="food" class="scene-section">
+            <div class="glass-card center">
+                <h2>Culinary Symphony</h2>
+                <p>A taste of tradition meeting modern culinary art. Savor the flavors of Punjab.</p>
+            </div>
+        </section>
+
+        <!-- Scene 7: Interactive City -->
+        <section id="interactive" class="scene-section">
+            <div class="glass-card bottom">
+                <h2>The Master Plan</h2>
+                <p>Explore the grid. A city designed for living, breathing, and thriving.</p>
+            </div>
+        </section>
+
+        <!-- Ending -->
+        <section id="ending" class="scene-section ending-section">
+            <div class="ending-content">
+                <h2 class="cinematic-title small">Experience Chandigarh</h2>
+                <button class="magnetic-button cta-button">
+                    <span class="btn-text">Plan Your Journey</span>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="./src/main.js"></script>
+</body>
+</html>
