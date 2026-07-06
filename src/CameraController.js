@@ -48,22 +48,29 @@ export default class CameraController {
         this.isOrbiting = false; // Stop orbiting to fly in
 
         // Calculate a position offset for viewing
-        const offset = new THREE.Vector3(-10, 15, 20);
+        const offset = new THREE.Vector3(-15, 20, 25); // Slightly further back for better view
         const camDestination = targetPos.clone().add(offset);
 
-        // Animate Camera Position
+        // Animate Camera Position with a drone-like arc
         gsap.to(this.camera.position, {
             x: camDestination.x,
-            y: camDestination.y,
+            y: camDestination.y + 10, // Arc up
             z: camDestination.z,
-            duration: 2,
-            ease: "power3.inOut",
+            duration: 2.5,
+            ease: "power2.inOut",
             onComplete: () => {
-                // Start orbiting once arrived
-                this.isOrbiting = true;
-                this.orbitCenter.copy(targetPos);
-                this.orbitAngle = Math.atan2(this.camera.position.z - targetPos.z, this.camera.position.x - targetPos.x);
-                this.orbitRadius = Math.sqrt(Math.pow(this.camera.position.x - targetPos.x, 2) + Math.pow(this.camera.position.z - targetPos.z, 2));
+                // Drop down slightly for settling effect
+                gsap.to(this.camera.position, {
+                    y: camDestination.y,
+                    duration: 1.5,
+                    ease: "power2.out",
+                    onComplete: () => {
+                        this.isOrbiting = true;
+                        this.orbitCenter.copy(targetPos);
+                        this.orbitAngle = Math.atan2(this.camera.position.z - targetPos.z, this.camera.position.x - targetPos.x);
+                        this.orbitRadius = Math.sqrt(Math.pow(this.camera.position.x - targetPos.x, 2) + Math.pow(this.camera.position.z - targetPos.z, 2));
+                    }
+                });
             }
         });
 
@@ -72,7 +79,7 @@ export default class CameraController {
             x: targetPos.x,
             y: targetPos.y,
             z: targetPos.z,
-            duration: 1.5,
+            duration: 2.5,
             ease: "power2.inOut"
         });
     }

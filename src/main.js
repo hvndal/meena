@@ -110,8 +110,24 @@ class App {
                 // Open panel and show loading state
                 infoPanel.classList.add('open');
                 document.getElementById('panel-title').textContent = data.name;
-                document.getElementById('panel-desc').innerHTML = '<p>Loading data from Wikipedia...</p>';
+                document.getElementById('panel-desc').innerHTML = '<p>Loading data...</p>';
                 document.getElementById('mapillary-view').innerHTML = '<div class="no-imagery">Searching Mapillary...</div>';
+
+                const mediaContainer = document.getElementById('landmark-media');
+                mediaContainer.style.display = 'none';
+                mediaContainer.innerHTML = '';
+
+                // Add live media based on ID
+                if (data.id === 'stanley_park') {
+                    mediaContainer.style.display = 'block';
+                    mediaContainer.innerHTML = `<iframe width="100%" height="200" src="https://www.youtube.com/embed/a4d5CbK0b3A?autoplay=1&mute=1" title="Stanley Park" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                } else if (data.id === 'gastown') {
+                    mediaContainer.style.display = 'block';
+                    mediaContainer.innerHTML = `<iframe width="100%" height="200" src="https://www.youtube.com/embed/QqNMp3GHKyw?autoplay=1&mute=1" title="Gastown History" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                } else {
+                     mediaContainer.style.display = 'block';
+                     mediaContainer.innerHTML = `<iframe width="100%" height="200" src="https://www.youtube.com/embed/rxyNjFKwzJA?autoplay=1&mute=1" title="Live Stream" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                }
 
                 // Fetch Wikipedia
                 const wikiData = await fetchWikiInfo(data.name);
@@ -137,6 +153,7 @@ class App {
                 }
             }
         });
+
     }
 
     onResize() {
