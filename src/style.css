@@ -1,181 +1,162 @@
 :root {
-    --bg-dark: #050505;
-    --text-primary: #ffffff;
-    --text-secondary: rgba(255, 255, 255, 0.7);
-    --accent: #4ade80; /* Neon green/mint accent */
-    --accent-glow: rgba(74, 222, 128, 0.3);
-    --glass-bg: rgba(20, 20, 20, 0.4);
-    --glass-border: rgba(255, 255, 255, 0.08);
+    /* Vancouver Cold Vibe Palette */
+    --bg-base: #0f172a; /* Slate 900 */
+    --bg-overlay: rgba(15, 23, 42, 0.7);
+    --text-primary: #f8fafc; /* Slate 50 */
+    --text-secondary: #cbd5e1; /* Slate 300 */
+    --accent: #38bdf8; /* Ocean blue */
+    --accent-glow: rgba(56, 189, 248, 0.4);
+    --glass-bg: rgba(30, 41, 59, 0.6); /* Slate 800 with opacity */
+    --glass-border: rgba(148, 163, 184, 0.2);
+    --panel-bg: rgba(15, 23, 42, 0.95);
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* Hide scrollbar but keep functionality for lenis */
-::-webkit-scrollbar {
-    display: none;
-}
-html {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
 body {
-    background-color: var(--bg-dark);
+    background-color: var(--bg-base);
     color: var(--text-primary);
     font-family: 'Inter', sans-serif;
     overflow-x: hidden;
-    cursor: none; /* Custom cursor */
 }
 
-h1, h2, h3, .cinematic-title {
-    font-family: 'Cinzel', serif;
+h1, h2, h3, .cinematic-title, .logo {
+    font-family: 'Inter', sans-serif;
     font-weight: 700;
+    letter-spacing: -1px;
 }
 
 /* Loader */
 #loader {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: var(--bg-dark);
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--bg-base); z-index: 9999;
+    display: flex; justify-content: center; align-items: center;
     transition: opacity 1s ease;
 }
 .loader-content { text-align: center; }
-.loader-text { margin-bottom: 20px; font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase; }
-.loader-bar { width: 200px; height: 2px; background: rgba(255,255,255,0.1); overflow: hidden; }
-.loader-progress { width: 0%; height: 100%; background: var(--text-primary); transition: width 0.2s ease; }
+.loader-text { margin-bottom: 20px; font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
+.loader-bar { width: 200px; height: 2px; background: var(--glass-border); overflow: hidden; }
+.loader-progress { width: 0%; height: 100%; background: var(--accent); transition: width 0.2s ease; }
 
-/* Custom Cursor */
-.custom-cursor {
-    position: fixed; top: 0; left: 0; width: 8px; height: 8px;
-    background: var(--text-primary); border-radius: 50%;
-    pointer-events: none; z-index: 10000; mix-blend-mode: difference;
-    transform: translate(-50%, -50%);
-}
-.custom-cursor-follower {
-    position: fixed; top: 0; left: 0; width: 40px; height: 40px;
-    border: 1px solid rgba(255,255,255,0.3); border-radius: 50%;
-    pointer-events: none; z-index: 9999;
-    transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s, background 0.2s;
+/* 3D Canvas */
+#canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+
+/* UI Overlay */
+.ui-layer {
+    position: relative;
+    z-index: 10;
+    pointer-events: none;
 }
 
-/* WebGL Canvas */
-#canvas-container {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    z-index: 0;
-    pointer-events: auto;
-}
-
-/* UI Overlay Layer */
-.floating-nav {
-    position: fixed; top: 40px; left: 50%; transform: translateX(-50%);
+header {
+    position: fixed; top: 0; left: 0; width: 100%; padding: 30px 50px;
     display: flex; justify-content: space-between; align-items: center;
-    width: 90%; max-width: 1200px; z-index: 100;
-    padding: 15px 30px; border-radius: 50px;
+    pointer-events: auto;
+    background: linear-gradient(to bottom, rgba(15,23,42,0.8) 0%, rgba(15,23,42,0) 100%);
+}
+
+.logo { font-size: 1.5rem; text-transform: uppercase; letter-spacing: 4px; }
+.controls { display: flex; gap: 20px; }
+.control-btn {
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    color: var(--text-primary); padding: 10px 15px; border-radius: 8px;
+    cursor: pointer; backdrop-filter: blur(10px); transition: all 0.3s ease;
+}
+.control-btn:hover { background: var(--accent); color: var(--bg-base); }
+
+/* Main Content Overlay */
+.intro-section {
+    height: 100vh; display: flex; flex-direction: column;
+    justify-content: center; padding-left: 10vw; pointer-events: none;
+}
+.intro-text { max-width: 600px; pointer-events: auto; }
+.cinematic-title { font-size: 5rem; margin-bottom: 10px; line-height: 1; }
+.subtitle { font-size: 1.5rem; color: var(--accent); margin-bottom: 20px; }
+.intro-desc { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.6; }
+
+/* Info Panel (Sidebar for Mapillary/Wiki) */
+#info-panel {
+    position: fixed; right: -450px; top: 0; width: 400px; height: 100vh;
+    background: var(--panel-bg); backdrop-filter: blur(20px);
+    border-left: 1px solid var(--glass-border);
+    padding: 30px; overflow-y: auto; pointer-events: auto;
+    transition: right 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 100;
+    display: flex; flex-direction: column; gap: 20px;
+    box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+}
+#info-panel.open { right: 0; }
+.close-panel {
+    position: absolute; top: 20px; right: 20px; background: none; border: none;
+    color: var(--text-secondary); font-size: 1.5rem; cursor: pointer;
+}
+.close-panel:hover { color: var(--text-primary); }
+
+.landmark-title { font-size: 2rem; margin-top: 20px; margin-bottom: 10px; color: var(--accent); border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; }
+.landmark-desc { font-size: 1rem; color: var(--text-secondary); line-height: 1.6; }
+
+/* Mapillary Image Container */
+.mapillary-container {
+    width: 100%; height: 250px; background: #000; border-radius: 12px; overflow: hidden;
+    position: relative; border: 1px solid var(--glass-border);
+}
+.mapillary-container img { width: 100%; height: 100%; object-fit: cover; }
+.mapillary-meta {
+    position: absolute; bottom: 0; left: 0; width: 100%; padding: 10px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8)); font-size: 0.8rem;
+}
+.no-imagery { display: flex; justify-content: center; align-items: center; height: 100%; color: var(--text-secondary); }
+
+/* Weather Widget */
+.weather-widget {
+    position: fixed; bottom: 30px; left: 50px; pointer-events: auto;
     background: var(--glass-bg); backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
+    padding: 15px 20px; border-radius: 12px; border: 1px solid var(--glass-border);
+    display: flex; align-items: center; gap: 15px;
 }
-.logo { font-family: 'Cinzel', serif; font-size: 1.5rem; font-weight: bold; letter-spacing: 2px;}
-.nav-links { display: flex; gap: 30px; }
-.nav-link {
-    color: var(--text-secondary); text-decoration: none;
-    font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;
-    transition: color 0.3s ease;
-}
-.nav-link:hover { color: var(--text-primary); }
+.weather-icon { font-size: 2rem; }
+.weather-info { display: flex; flex-direction: column; }
+.weather-temp { font-size: 1.2rem; font-weight: bold; }
+.weather-desc { font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; }
 
-.scroll-progress-container {
-    position: fixed; right: 30px; top: 50%; transform: translateY(-50%);
-    width: 2px; height: 200px; background: rgba(255,255,255,0.1); z-index: 100;
+/* Video Sections */
+.video-section {
+    position: relative; z-index: 5; pointer-events: auto;
+    background: var(--bg-base); padding: 100px 5vw;
 }
-.scroll-progress-bar { width: 100%; height: 0%; background: var(--text-primary); }
-
-.scroll-prompt {
-    position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
-    font-size: 0.8rem; text-transform: uppercase; letter-spacing: 4px;
-    opacity: 0.5; z-index: 100; animation: pulse 2s infinite;
+.video-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px; max-width: 1400px; margin: 0 auto;
 }
-@keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.8; } }
-
-/* Scroll Content */
-#scroll-content {
-    position: relative;
-    z-index: 10; /* Above canvas, below fixed UI */
-    pointer-events: none; /* Let clicks pass through to canvas by default */
+.video-card {
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    border-radius: 16px; overflow: hidden; padding: 20px;
+}
+.video-card h3 { margin-bottom: 15px; font-size: 1.2rem; }
+.video-wrapper {
+    position: relative; padding-bottom: 56.25%; height: 0; border-radius: 8px; overflow: hidden;
+}
+.video-wrapper iframe {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;
 }
 
-.scene-section {
-    height: 150vh; /* Plenty of scroll space per scene */
-    display: flex;
-    align-items: center;
-    padding: 0 10vw;
-    position: relative;
+/* Tooltip for 3D markers */
+#tooltip {
+    position: fixed; top: 0; left: 0; pointer-events: none; opacity: 0;
+    background: rgba(15,23,42,0.8); backdrop-filter: blur(5px);
+    padding: 8px 15px; border-radius: 6px; border: 1px solid var(--glass-border);
+    font-size: 0.9rem; color: var(--text-primary); transition: opacity 0.2s;
+    transform: translate(-50%, -150%); white-space: nowrap; z-index: 99;
 }
-#opening { height: 100vh; justify-content: center; }
 
-/* Glass Cards */
-.glass-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid var(--glass-border);
-    padding: 40px;
-    border-radius: 20px;
-    max-width: 500px;
-    pointer-events: auto; /* Re-enable pointer events for cards */
-    opacity: 0; /* Handled by GSAP */
-    transform: translateY(50px);
-}
-.glass-card.left { margin-right: auto; }
-.glass-card.right { margin-left: auto; }
-.glass-card.center { margin: 0 auto; text-align: center; }
-.glass-card.bottom { margin: auto auto 10vh auto; }
-
-.title-card { text-align: center; background: transparent; border: none; backdrop-filter: none; max-width: 800px;}
-.cinematic-title { font-size: 5rem; line-height: 1.1; letter-spacing: 5px; margin-bottom: 20px; text-shadow: 0 0 20px rgba(0,0,0,0.8); }
-.cinematic-title.small { font-size: 3rem; }
-.subtitle { font-size: 1.5rem; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; }
-
-.glass-card h2 { font-size: 2.5rem; margin-bottom: 15px; }
-.glass-card p { font-size: 1.1rem; line-height: 1.6; color: var(--text-secondary); }
-
-/* Ending */
-.ending-section { height: 100vh; justify-content: center; align-items: center; text-align: center; }
-.ending-content { pointer-events: auto; }
-
-.magnetic-button {
-    margin-top: 40px;
-    padding: 20px 40px;
-    background: transparent;
-    border: 1px solid var(--text-primary);
-    color: var(--text-primary);
-    border-radius: 30px;
-    font-size: 1.2rem;
-    cursor: none;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-.magnetic-button::before {
-    content: ''; position: absolute; top: 100%; left: 0; width: 100%; height: 100%;
-    background: var(--text-primary); transition: top 0.3s ease; z-index: -1;
-}
-.magnetic-button:hover { color: var(--bg-dark); }
-.magnetic-button:hover::before { top: 0; }
-.btn-text { position: relative; z-index: 1; text-transform: uppercase; letter-spacing: 2px; }
-
-/* Responsive */
 @media (max-width: 768px) {
-    .floating-nav { display: none; }
+    header { padding: 20px; }
     .cinematic-title { font-size: 3rem; }
-    .glass-card { padding: 25px; margin: 0 auto !important; text-align: center; }
-    .scene-section { height: 100vh; }
+    #info-panel { width: 100%; right: -100%; }
+    .weather-widget { bottom: 20px; left: 20px; }
 }
