@@ -9,25 +9,25 @@ export default class CityNightScene {
         this.scene.add(this.group);
 
         this.createPlaza();
-        this.createNeonAccents();
+        this.createAccents();
         this.createTrafficParticles();
     }
 
     createPlaza() {
-        // Wet reflective floor
+        // Bright polished concrete floor
         const floorGeo = new THREE.PlaneGeometry(80, 80);
         const floorMat = new THREE.MeshStandardMaterial({
-            color: 0x050505,
-            roughness: 0.1, // Highly reflective
-            metalness: 0.8
+            color: 0xeeeeee,
+            roughness: 0.2,
+            metalness: 0.1
         });
         const floor = new THREE.Mesh(floorGeo, floorMat);
         floor.rotation.x = -Math.PI / 2;
         floor.receiveShadow = true;
         this.group.add(floor);
 
-        // Building blocks (Stores/Plaza)
-        const bldgMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.7 });
+        // Building blocks (Stores/Plaza) in light tones
+        const bldgMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 });
         for(let i=0; i<10; i++) {
             const width = Math.random() * 10 + 5;
             const height = Math.random() * 15 + 5;
@@ -36,18 +36,20 @@ export default class CityNightScene {
             const bldgGeo = new THREE.BoxGeometry(width, height, depth);
             const bldg = new THREE.Mesh(bldgGeo, bldgMat);
 
-            // Distribute around the plaza, leaving a central walkway
             const x = (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 20 + 15);
             const z = (Math.random() - 0.5) * 60;
 
             bldg.position.set(x, height/2, z);
+            bldg.castShadow = true;
+            bldg.receiveShadow = true;
             this.group.add(bldg);
         }
     }
 
-    createNeonAccents() {
-        this.neonMaterials = [];
-        const colors = [0x4ade80, 0xff00ff, 0x00ffff];
+    createAccents() {
+        this.accentMaterials = [];
+        // Soft pastel 'neon' for the light theme
+        const colors = [0xd88fa3, 0x8fc2d8, 0xd8c88f];
 
         for(let i=0; i<15; i++) {
             const geo = new THREE.BoxGeometry(
@@ -57,52 +59,56 @@ export default class CityNightScene {
             );
 
             const mat = new THREE.MeshBasicMaterial({
-                color: colors[Math.floor(Math.random() * colors.length)]
+                color: colors[Math.floor(Math.random() * colors.length)],
+                transparent: true,
+                opacity: 0.8
             });
-            this.neonMaterials.push(mat);
+            this.accentMaterials.push(mat);
 
-            const neon = new THREE.Mesh(geo, mat);
-            neon.position.set(
+            const accent = new THREE.Mesh(geo, mat);
+            accent.position.set(
                 (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 15 + 10),
                 Math.random() * 10 + 2,
                 (Math.random() - 0.5) * 50
             );
 
-            // Point light to create glow effect on surrounding geometry
-            const light = new THREE.PointLight(mat.color, 0.5, 10);
-            neon.add(light);
+            const light = new THREE.PointLight(mat.color, 0.5, 15);
+            accent.add(light);
 
-            this.group.add(neon);
+            this.group.add(accent);
         }
     }
 
     createTrafficParticles() {
-        // Red and white streams representing traffic
-        const particleCount = 200;
+        const particleCount = 150;
         const geometry = new THREE.BufferGeometry();
         const positions = new Float32Array(particleCount * 3);
         const colors = new Float32Array(particleCount * 3);
 
+        const softRed = new THREE.Color(0xd88fa3); // Pinkish red
+        const softWhite = new THREE.Color(0x8fc2d8); // Light blueish white
+
         for (let i = 0; i < particleCount; i++) {
-            positions[i*3] = (Math.random() - 0.5) * 10; // narrow x spread
-            positions[i*3+1] = 0.5; // just above ground
-            positions[i*3+2] = (Math.random() - 0.5) * 60; // long z spread
+            positions[i*3] = (Math.random() - 0.5) * 10;
+            positions[i*3+1] = 0.5;
+            positions[i*3+2] = (Math.random() - 0.5) * 60;
 
             const isTailLight = Math.random() > 0.5;
-            colors[i*3] = isTailLight ? 1 : 1; // R
-            colors[i*3+1] = isTailLight ? 0 : 1; // G
-            colors[i*3+2] = isTailLight ? 0 : 1; // B
+            const c = isTailLight ? softRed : softWhite;
+            colors[i*3] = c.r;
+            colors[i*3+1] = c.g;
+            colors[i*3+2] = c.b;
         }
 
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
         const material = new THREE.PointsMaterial({
-            size: 0.5,
+            size: 0.8,
             vertexColors: true,
             transparent: true,
-            opacity: 0.8,
-            blending: THREE.AdditiveBlending
+            opacity: 0.7,
+            blending: THREE.NormalBlending
         });
 
         this.traffic = new THREE.Points(geometry, material);
@@ -110,28 +116,22 @@ export default class CityNightScene {
     }
 
     update(time) {
-        // Blink neon lights
-        this.neonMaterials.forEach((mat, i) => {
-            if(Math.random() > 0.98) {
-                mat.opacity = Math.random();
-                mat.transparent = true;
-            } else {
-                mat.opacity = 1;
+        this.accentMaterials.forEach((mat, i) => {
+            if(Math.random() > 0.99) {
+                mat.opacity = Math.random() * 0.5 + 0.3;
             }
         });
 
-        // Move traffic
         if(this.traffic) {
             const positions = this.traffic.geometry.attributes.position.array;
             const colors = this.traffic.geometry.attributes.color.array;
             for(let i=0; i<positions.length/3; i++) {
-                // Determine direction based on color (red goes one way, white the other)
-                const isRed = colors[i*3+1] === 0;
-                const speed = isRed ? 0.5 : -0.5;
+                // If it's the pinkish red (tail light), it goes one way
+                const isTail = colors[i*3] > 0.8 && colors[i*3+1] < 0.6;
+                const speed = isTail ? 0.3 : -0.3;
 
                 positions[i*3+2] += speed;
 
-                // Wrap around
                 if(positions[i*3+2] > 30) positions[i*3+2] = -30;
                 if(positions[i*3+2] < -30) positions[i*3+2] = 30;
             }

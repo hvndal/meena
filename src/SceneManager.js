@@ -12,15 +12,18 @@ export default class SceneManager {
     constructor(container) {
         this.container = container;
         this.scene = new THREE.Scene();
-        // Add soft fog for depth and cyberpunk/luxury vibe
-        this.scene.fog = new THREE.FogExp2(0x050505, 0.02);
+
+        // Light, tranquil fog (matching --bg-light #fdfaf6)
+        this.scene.fog = new THREE.FogExp2(0xfdfaf6, 0.015);
 
         this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limit pixel ratio for performance
-        this.renderer.setClearColor(0x050505, 1);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // Light background
+        this.renderer.setClearColor(0xfdfaf6, 1);
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this.container.appendChild(this.renderer.domElement);
@@ -31,23 +34,24 @@ export default class SceneManager {
     }
 
     setupGlobalLighting() {
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+        // Soft, bright ambient light for a serene feel
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         this.scene.add(ambientLight);
 
-        this.mainLight = new THREE.DirectionalLight(0xffffff, 1);
+        // Warm sunlight
+        this.mainLight = new THREE.DirectionalLight(0xfff5e6, 0.8);
         this.mainLight.position.set(50, 100, 50);
         this.mainLight.castShadow = true;
         this.mainLight.shadow.mapSize.width = 2048;
         this.mainLight.shadow.mapSize.height = 2048;
         this.mainLight.shadow.camera.near = 0.5;
         this.mainLight.shadow.camera.far = 500;
+        // Soften shadows for tranquil look
+        this.mainLight.shadow.bias = -0.0005;
         this.scene.add(this.mainLight);
     }
 
     buildScenes() {
-        // Build abstract scenes sequentially along the Z axis negative direction
-        // This gives the camera a linear path to travel down
-
         this.scenes.push(new OpeningScene(this.scene, { zOffset: 0 }));
         this.scenes.push(new LakeScene(this.scene, { zOffset: -100 }));
         this.scenes.push(new RockGardenScene(this.scene, { zOffset: -200 }));
@@ -65,11 +69,9 @@ export default class SceneManager {
     }
 
     update(time) {
-        // Update all individual scenes (for animations, shaders)
         this.scenes.forEach(s => {
             if(s.update) s.update(time);
         });
-
         this.renderer.render(this.scene, this.camera);
     }
 }

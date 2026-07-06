@@ -15,14 +15,13 @@ export default class FoodScene {
     createFloatingDishes() {
         this.dishes = [];
 
-        // Materials representing rich food colors (saffron, herbs, cream)
+        // Muted, organic tones reflecting heritage cuisine
         const materials = [
-            new THREE.MeshStandardMaterial({ color: 0xffaa00, roughness: 0.3, metalness: 0.2 }), // Saffron
-            new THREE.MeshStandardMaterial({ color: 0x4ade80, roughness: 0.4, metalness: 0.1 }), // Herbs
-            new THREE.MeshStandardMaterial({ color: 0xffffee, roughness: 0.2, metalness: 0.5 })  // Cream/Paneer
+            new THREE.MeshStandardMaterial({ color: 0xd4a373, roughness: 0.4, metalness: 0.1 }), // Warm terracotta/wheat
+            new THREE.MeshStandardMaterial({ color: 0xccd5ae, roughness: 0.5, metalness: 0.1 }), // Muted green/herbs
+            new THREE.MeshStandardMaterial({ color: 0xfaedcd, roughness: 0.2, metalness: 0.3 })  // Cream/Paneer
         ];
 
-        // Geometries representing plates/bowls/ingredients
         const geometries = [
             new THREE.TorusGeometry(2, 0.5, 16, 32),
             new THREE.CylinderGeometry(2, 1.5, 1, 32),
@@ -35,7 +34,6 @@ export default class FoodScene {
 
             const mesh = new THREE.Mesh(geo, mat);
 
-            // Distribute in a floating ring
             const angle = (i / 6) * Math.PI * 2;
             const radius = 8;
             mesh.position.set(
@@ -53,17 +51,16 @@ export default class FoodScene {
                 baseY: mesh.position.y,
                 offset: Math.random() * Math.PI * 2,
                 rotSpeed: {
-                    x: Math.random() * 0.02 - 0.01,
-                    y: Math.random() * 0.02 - 0.01,
-                    z: Math.random() * 0.02 - 0.01
+                    x: Math.random() * 0.015 - 0.0075,
+                    y: Math.random() * 0.015 - 0.0075,
+                    z: Math.random() * 0.015 - 0.0075
                 }
             });
         }
     }
 
     createSteam() {
-        // Soft particles rising
-        const particleCount = 200;
+        const particleCount = 150;
         const geometry = new THREE.BufferGeometry();
         const positions = new Float32Array(particleCount * 3);
 
@@ -76,11 +73,11 @@ export default class FoodScene {
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
         const material = new THREE.PointsMaterial({
-            color: 0xffffff,
-            size: 1.5,
+            color: 0xdddddd, // Greyish steam against white background
+            size: 2,
             transparent: true,
-            opacity: 0.1,
-            blending: THREE.AdditiveBlending,
+            opacity: 0.2,
+            blending: THREE.NormalBlending, // Additive looks weird on white bg
             depthWrite: false
         });
 
@@ -89,21 +86,19 @@ export default class FoodScene {
     }
 
     update(time) {
-        // Float and rotate dishes
         this.dishes.forEach(dish => {
-            dish.obj.position.y = dish.baseY + Math.sin(time + dish.offset) * 1.5;
+            dish.obj.position.y = dish.baseY + Math.sin(time * 0.5 + dish.offset) * 1.5;
             dish.obj.rotation.x += dish.rotSpeed.x;
             dish.obj.rotation.y += dish.rotSpeed.y;
             dish.obj.rotation.z += dish.rotSpeed.z;
         });
 
-        // Rise steam
         if(this.steam) {
             const positions = this.steam.geometry.attributes.position.array;
             for(let i=0; i<positions.length/3; i++) {
-                positions[i*3+1] += 0.05; // Move up
+                positions[i*3+1] += 0.03;
                 if(positions[i*3+1] > 10) {
-                    positions[i*3+1] = -5; // Reset to bottom
+                    positions[i*3+1] = -5;
                 }
             }
             this.steam.geometry.attributes.position.needsUpdate = true;

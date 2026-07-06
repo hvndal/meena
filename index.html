@@ -3,12 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Discover Chandigarh | India's City Beautiful</title>
+    <title>Discover Chandigarh | The City Beautiful</title>
     <link rel="stylesheet" href="./src/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Loading Screen -->
+    <!-- Audio -->
+    <audio id="bg-music" loop preload="auto">
+        <!-- Public domain / CC0 ambient music -->
+        <source src="https://cdn.pixabay.com/download/audio/2022/10/25/audio_2dbb9ab3c0.mp3?filename=tranquil-meditation-122971.mp3" type="audio/mpeg">
+    </audio>
+
     <div id="loader">
         <div class="loader-content">
             <div class="loader-text">Loading Experience...</div>
@@ -16,36 +21,35 @@
         </div>
     </div>
 
-    <!-- Custom Cursor -->
     <div class="custom-cursor"></div>
     <div class="custom-cursor-follower"></div>
 
-    <!-- WebGL Canvas Container -->
+    <button id="audio-toggle" class="audio-control">🔇</button>
+
     <div id="canvas-container"></div>
 
-    <!-- UI Overlay -->
     <nav class="floating-nav">
-        <div class="logo">DC</div>
+        <div class="logo">CHANDIGARH</div>
         <div class="nav-links">
-            <a href="#lake" class="nav-link">Lake</a>
-            <a href="#rock-garden" class="nav-link">Rock Garden</a>
-            <a href="#capitol" class="nav-link">Capitol</a>
+            <a href="#lake" class="nav-link">Sukhna</a>
+            <a href="#rock-garden" class="nav-link">Nek Chand</a>
+            <a href="#capitol" class="nav-link">Corbusier</a>
             <a href="#sector-17" class="nav-link">Sector 17</a>
-            <a href="#rose-garden" class="nav-link">Rose Garden</a>
-            <a href="#food" class="nav-link">Cuisine</a>
+            <a href="#rose-garden" class="nav-link">Zakir Hussain</a>
+            <a href="#food" class="nav-link">Heritage</a>
         </div>
     </nav>
     <div class="scroll-progress-container"><div class="scroll-progress-bar"></div></div>
 
     <div class="scroll-prompt">Scroll to Discover</div>
 
-    <!-- Scroll Content (Overlaying WebGL) -->
     <main id="scroll-content">
         <!-- Opening -->
         <section id="opening" class="scene-section">
             <div class="glass-card title-card">
-                <h1 class="cinematic-title">DISCOVER<br>CHANDIGARH</h1>
-                <p class="subtitle">India's City Beautiful</p>
+                <h1 class="cinematic-title">CHANDIGARH</h1>
+                <p class="subtitle">A Modernist Utopia</p>
+                <p style="margin-top: 20px; color: var(--text-secondary); max-width: 600px; margin-inline: auto;">Conceived by Jawaharlal Nehru as a symbol of the newly independent India's forward-looking spirit, planned by Swiss-French architect Le Corbusier.</p>
             </div>
         </section>
 
@@ -53,23 +57,26 @@
         <section id="lake" class="scene-section">
             <div class="glass-card left">
                 <h2>Sukhna Lake</h2>
-                <p>Tranquil waters mirroring the Shivalik foothills. A sanctuary for migratory birds and weary souls.</p>
+                <p>Created in 1958 by damming the Sukhna Choe, a seasonal stream coming down from the Shivalik Hills.</p>
+                <p>Le Corbusier and Chief Engineer P L Verma designed it to be a sanctuary of peace. Motorized boats are strictly prohibited to maintain the tranquility and protect the migratory Siberian ducks, storks, and cranes that visit during winter.</p>
             </div>
         </section>
 
         <!-- Scene 2: Rock Garden -->
         <section id="rock-garden" class="scene-section">
             <div class="glass-card right">
-                <h2>The Rock Garden</h2>
-                <p>A masterpiece from the discarded. Nek Chand's labyrinth of ceramic sculptures and cascading waterfalls.</p>
+                <h2>Nek Chand's Rock Garden</h2>
+                <p>A testament to obsessive creation and isolationism. In 1957, Nek Chand, a government roads inspector, secretly began clearing a patch of jungle to create a miniature kingdom.</p>
+                <p>He built it entirely from industrial waste and discarded items—broken bangles, ceramic pots, electrical fittings. Discovered by authorities in 1975, it was almost demolished but saved by public outcry, becoming one of India's most profound outsider art installations.</p>
             </div>
         </section>
 
         <!-- Scene 3: Capitol -->
         <section id="capitol" class="scene-section">
             <div class="glass-card left">
-                <h2>Capitol Complex</h2>
-                <p>Le Corbusier's concrete poetry. Monumental architecture bathed in the golden hour.</p>
+                <h2>The Capitol Complex</h2>
+                <p>A UNESCO World Heritage Site comprising three architectural masterpieces by Le Corbusier: the Secretariat, the High Court, and the Legislative Assembly.</p>
+                <p>Built using Béton brut (raw concrete), the monumental structures represent the sheer power of the state. It also houses the 'Open Hand Monument', Corbusier's recurring motif, symbolizing "the hand to give and the hand to receive; peace and prosperity, and the unity of mankind."</p>
             </div>
         </section>
 
@@ -77,7 +84,8 @@
         <section id="sector-17" class="scene-section">
             <div class="glass-card right">
                 <h2>Sector 17</h2>
-                <p>The heart of the city under neon lights. Where commerce meets culture in the pouring rain.</p>
+                <p>The pedestrianized commercial and civic heart of the city. Designed to be the central hub in the city's anatomical layout (representing the 'heart').</p>
+                <p>Known for its concrete facades and extensive open plazas, it was designed to prioritize pedestrians over vehicles, a radical concept for Indian urban planning in the 1950s. The neon signs contrasting with raw concrete create a unique aesthetic at dusk.</p>
             </div>
         </section>
 
@@ -85,30 +93,25 @@
         <section id="rose-garden" class="scene-section">
             <div class="glass-card left">
                 <h2>Zakir Hussain Rose Garden</h2>
-                <p>Thousands of blooms swaying in the gentle breeze. A fragrant escape into nature's vibrant palette.</p>
+                <p>Named after India's former President, created in 1967 under the guidance of Dr. M.S. Randhawa.</p>
+                <p>Spread over 30 acres, it is Asia's largest Rose Garden, containing over 50,000 rose-bushes of 1600 different species. The garden aligns with the city's philosophy of incorporating vast, meticulously planned green belts (the 'lungs' of the city) between sectors.</p>
             </div>
         </section>
 
-        <!-- Scene 6: Food -->
+        <!-- Scene 6: Food / Heritage -->
         <section id="food" class="scene-section">
             <div class="glass-card center">
-                <h2>Culinary Symphony</h2>
-                <p>A taste of tradition meeting modern culinary art. Savor the flavors of Punjab.</p>
-            </div>
-        </section>
-
-        <!-- Scene 7: Interactive City -->
-        <section id="interactive" class="scene-section">
-            <div class="glass-card bottom">
-                <h2>The Master Plan</h2>
-                <p>Explore the grid. A city designed for living, breathing, and thriving.</p>
+                <h2>Culinary Melting Pot</h2>
+                <p>Chandigarh's food culture reflects its history as a planned city populated by migrants from across partitioned Punjab.</p>
+                <p>From the iconic Indian Coffee House in Sector 17—a historic intellectual hub retaining its mid-century charm—to the rich, buttery dhabas, the city's cuisine is a warm blend of heritage, nostalgia, and robust flavors.</p>
             </div>
         </section>
 
         <!-- Ending -->
         <section id="ending" class="scene-section ending-section">
             <div class="ending-content">
-                <h2 class="cinematic-title small">Experience Chandigarh</h2>
+                <h2 class="cinematic-title small">Experience The Master Plan</h2>
+                <p style="margin-bottom: 30px; color: var(--text-secondary);">A city designed for human scale, light, and air.</p>
                 <button class="magnetic-button cta-button">
                     <span class="btn-text">Plan Your Journey</span>
                 </button>
