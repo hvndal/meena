@@ -1,7 +1,9 @@
 {
-  "name": "discover-chandigarh",
+  "name": "vancouver-3d-explorer",
   "version": "1.0.0",
-  "description": "",
+  "description": "Interactive 3D Map and Explorer of Vancouver & Metropolitan Vancouver, BC. Designed & engineered by MANDER.",
+  "author": "MANDER (https://www.mander.tech)",
+  "homepage": "https://www.mander.tech",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
